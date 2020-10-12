@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "873984598569",
+    "firebase_url": "https://abdelkader-e86f9.firebaseio.com",
+    "project_id": "abdelkader-e86f9",
+    "storage_bucket": "abdelkader-e86f9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:873984598569:android:55e9c8b7db714239473238",
+        "android_client_info": {
+          "package_name": "com.abdelbassit.abdelkader"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "873984598569-gro5bu570n7knc2dou70hj2qivcsjk3j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgvKgwVgUxiq77gEQq_H75ph0cIsm7qpg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "873984598569-gro5bu570n7knc2dou70hj2qivcsjk3j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
