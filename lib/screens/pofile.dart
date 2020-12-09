@@ -146,7 +146,7 @@ class _ProfileState extends State<Profile> {
               ),
               actions: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: IconButton(
                     icon: Icon(Icons.delete),
                     onPressed: () {
