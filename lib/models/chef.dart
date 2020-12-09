@@ -9,6 +9,9 @@ class ChefData {
   final String email;
   final String numTlf;
   final double argent;
+  final bool deleted;
 
-  ChefData({this.uid, this.name, this.email, this.numTlf, this.argent});
+  ChefData({this.uid, this.name, this.email, this.numTlf, this.argent,this.deleted});
 }
+
+

@@ -1,5 +1,7 @@
 import 'package:abdelkader/models/chef.dart';
+import 'package:abdelkader/models/transaction.dart';
 import 'package:abdelkader/screens/pofile.dart';
+import 'package:abdelkader/screens/profile_transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +14,7 @@ const textinputDecoration = InputDecoration(
     ),
     prefixIcon: Icon(
       Icons.attach_money,
-      color: Colors.black,
+      color: Colors.blue,
     ),
     enabledBorder: OutlineInputBorder(
       borderSide: BorderSide(
@@ -29,7 +31,9 @@ const textinputDecoration = InputDecoration(
 
 class UserCard extends StatelessWidget {
   final ChefData data;
+
   UserCard({this.data});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -50,12 +54,13 @@ class UserCard extends StatelessWidget {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => Profile(
+                    builder: (context) => Profile_Transactions(
                           uid: data.uid,
                           name: data.name,
                           email: data.email,
                           phoneNumber: data.numTlf,
                           money: data.argent,
+                          deleted: data.deleted,
                         )));
           },
         ),
@@ -77,8 +82,80 @@ class _UsersListState extends State<UsersList> {
     return ListView.builder(
       itemCount: usersList.length,
       itemBuilder: (context, index) {
-        return UserCard(data: usersList[index]);
+        if (usersList[index].deleted == false) {
+          return UserCard(data: usersList[index]);
+        } else
+          return SizedBox(
+            height: 0,
+          );
       },
     );
   }
 }
+
+class Transaction_Card extends StatelessWidget {
+  final Transaction1 data;
+  Transaction_Card({this.data});
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.blue[100],
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          child: Column(
+            children: [
+              Text(
+                'Description',
+                style: TextStyle(fontSize: 20, color: Colors.black),
+              ),
+              SizedBox(height: 5,),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(data.somme.toString()),
+                    Text(
+                      data.time.toIso8601String(),
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+class TransactionsList extends StatefulWidget {
+  @override
+  _TransactionsListState createState() => _TransactionsListState();
+}
+
+class _TransactionsListState extends State<TransactionsList> {
+  @override
+  Widget build(BuildContext context) {
+    final transactionsList = Provider.of<List<Transaction1>>(context) ?? [];
+    return ListView.builder(
+      itemCount: transactionsList.length,
+      itemBuilder: (context, index) {
+        print('hhhhh');
+        return Transaction_Card(data: transactionsList[index]);
+
+      },
+    );
+  }
+}
+
+
