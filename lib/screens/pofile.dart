@@ -1,8 +1,14 @@
+import 'dart:typed_data';
+import 'package:intl/intl.dart';
+
 import 'package:abdelkader/models/chef.dart';
+import 'package:abdelkader/screens/chefsScreen.dart';
 import 'package:abdelkader/services/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:abdelkader/screens/constant.dart';
+import 'package:uuid/uuid.dart';
 
 import 'package:provider/provider.dart';
 
@@ -13,6 +19,8 @@ class Profile extends StatefulWidget {
   final String phoneNumber;
   final double money;
   final bool deleted;
+  final String pic;
+
 
   Profile(
       {this.uid,
@@ -20,23 +28,47 @@ class Profile extends StatefulWidget {
       this.email,
       this.phoneNumber,
       this.money,
-      this.deleted});
+      this.deleted,
+      this.pic});
 
   @override
   _ProfileState createState() => _ProfileState();
 }
 
 class _ProfileState extends State<Profile> {
+  final FirebaseStorage storage = FirebaseStorage.instance;
+
+  Uint8List imageBytes;
+  String errorMsg;
+  DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm");
+  var uuid = Uuid();
+
+
   final _formKey = GlobalKey<FormState>();
   final _formKey1 = GlobalKey<FormState>();
+  String img;
   String _currentName;
   String _currentEmail;
   String _currentPhoneNumber;
   String somme;
   double _currentMoney;
+  String url;
+
+  Future<void> GetImage() async {
+    final ref =
+        FirebaseStorage.instance.ref().child('uploads/${this.widget.pic}');
+// no need of the file extension, the name will do fine.
+    var url1 = await ref.getDownloadURL();
+    setState(() {
+      url = url1.toString();
+    });
+  }
 
   @override
   void initState() {
+    if (this.widget.pic != null) {
+      GetImage();
+    }
     _currentPhoneNumber = this.widget.phoneNumber;
     _currentName = this.widget.name;
     _currentEmail = this.widget.email;
@@ -47,11 +79,68 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
+    var img = imageBytes != null
+        ? Image.memory(
+            imageBytes,
+            fit: BoxFit.cover,
+          )
+        : Text(errorMsg != null ? errorMsg : "Loading...");
+
+    /*Future<void>  GetImage() async {
+      final ref = FirebaseStorage.instance.ref().child('uploads/${this.widget.pic}');
+      var url = await ref.getDownloadURL();
+      setState(() {
+        img = url;
+
+      });
+    }*/
+
     Size size = MediaQuery.of(context).size;
-    Future<void> _showMyDialog() async {
+
+    Future<void> _DeleteMsg() async {
       return showDialog<void>(
         context: context,
         barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text('Voulez vous vraiment supprimer cet utilisateur ?'),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Oui'),
+                onPressed: () {
+                  DatabaseService().updateUserData(
+                      this.widget.uid,
+                      this.widget.name,
+                      this.widget.email,
+                      this.widget.phoneNumber,
+                      this.widget.money,
+                      true);
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ChefsScreen()));
+                },
+              ),
+              TextButton(
+                child: Text('Non'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    Future<void> _showMyDialog() async {
+      return showDialog<void>(
+        context: context,
+        barrierDismissible: true, // user must tap button!
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Entrer une somme'),
@@ -93,7 +182,7 @@ class _ProfileState extends State<Profile> {
                         ),
                       ),
                       validator: (val) =>
-                          val.isEmpty ? 'Please enter a number' : null,
+                          val.isEmpty ? 'entrer un numero' : null,
                       onChanged: (val) => setState(() => somme = val),
                     ),
                   )
@@ -118,7 +207,7 @@ class _ProfileState extends State<Profile> {
                   onPressed: () {
                     if (_formKey.currentState.validate()) {
                       setState(() {
-                        _currentMoney =  _currentMoney - double.parse(somme);
+                        _currentMoney = _currentMoney - double.parse(somme);
                       });
 
                       Navigator.of(context).pop();
@@ -131,7 +220,6 @@ class _ProfileState extends State<Profile> {
     }
 
     return StreamProvider<CollectionReference>.value(
-
       child: MaterialApp(
         home: SafeArea(
           child: Scaffold(
@@ -151,14 +239,7 @@ class _ProfileState extends State<Profile> {
                     icon: Icon(Icons.delete),
                     onPressed: () {
                       //DatabaseService().deleteChef(this.widget.uid);
-                      DatabaseService().updateUserData(
-                          this.widget.uid,
-                          this.widget.name,
-                          this.widget.email,
-                          this.widget.phoneNumber,
-                          this.widget.money,
-                          true);
-                      Navigator.pop(context);
+                      _DeleteMsg();
                     },
                   ),
                 )
@@ -176,10 +257,26 @@ class _ProfileState extends State<Profile> {
                           key: _formKey,
                           child: Column(
                             children: <Widget>[
-                              CircleAvatar(
-                                radius: 70,
-                                backgroundColor: Colors.white,
-                                backgroundImage: AssetImage('assets/61205.png'),
+                              GestureDetector(
+                                onTap: () {},
+                                child: url != null
+                                    ? Container(
+                                        height: 120,
+                                        width: 120,
+                                        decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                              image: NetworkImage(url),
+                                              fit: BoxFit.cover),
+                                          color: Colors.grey,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      )
+                                    : CircleAvatar(
+                                        radius: 60,
+                                        backgroundColor: Colors.white,
+                                        backgroundImage:
+                                            AssetImage('assets/61205.png'),
+                                      ),
                               ),
                               SizedBox(
                                 height: 15,
@@ -221,7 +318,7 @@ class _ProfileState extends State<Profile> {
                                   ),
                                 ),
                                 validator: (val) =>
-                                    val.isEmpty ? 'Please enter a name' : null,
+                                    val.isEmpty ? 'entrer un nom' : null,
                                 onChanged: (val) =>
                                     setState(() => _currentName = val),
                               ),
@@ -265,7 +362,7 @@ class _ProfileState extends State<Profile> {
                                   ),
                                 ),
                                 validator: (val) => val.isEmpty
-                                    ? 'Please enter an email'
+                                    ? 'entrer un email'
                                     : null,
                                 onChanged: (val) =>
                                     setState(() => _currentEmail = val),
@@ -311,7 +408,7 @@ class _ProfileState extends State<Profile> {
                                   ),
                                 ),
                                 validator: (val) => val.isEmpty
-                                    ? 'Please enter a phone number'
+                                    ? 'entrer un numero de telephone'
                                     : null,
                                 onChanged: (val) =>
                                     setState(() => _currentPhoneNumber = val),
@@ -349,8 +446,8 @@ class _ProfileState extends State<Profile> {
                                     '   DA',
                                     style: TextStyle(fontSize: 18),
                                   ),
-                                  SizedBox(
-                                    width: 120,
+                                  Expanded(
+                                    child: SizedBox(),
                                   ),
                                   IconButton(
                                       icon: Icon(
@@ -374,7 +471,10 @@ class _ProfileState extends State<Profile> {
                                                   this.widget.phoneNumber ||
                                               _currentEmail !=
                                                   this.widget.email ||
-                                              _currentName != this.widget.name || _currentMoney != this.widget.money )
+                                              _currentName !=
+                                                  this.widget.name ||
+                                              _currentMoney !=
+                                                  this.widget.money)
                                           ? Colors.red
                                           : Colors.grey,
                                       child: Text(
@@ -386,7 +486,10 @@ class _ProfileState extends State<Profile> {
                                                   this.widget.phoneNumber ||
                                               _currentEmail !=
                                                   this.widget.email ||
-                                              _currentName != this.widget.name || _currentMoney != this.widget.money)
+                                              _currentName !=
+                                                  this.widget.name ||
+                                              _currentMoney !=
+                                                  this.widget.money)
                                           ? () async {
                                               if (_formKey.currentState
                                                   .validate()) {
@@ -402,8 +505,26 @@ class _ProfileState extends State<Profile> {
                                                             this
                                                                 .widget
                                                                 .phoneNumber,
-                                                        _currentMoney ?? this.widget.money,
+                                                        _currentMoney ??
+                                                            this.widget.money,
                                                         this.widget.deleted);
+
+
+                                                if(_currentMoney <
+                                                    this.widget.money){
+                                                  await DatabaseService(uid: this.widget.uid).updateUserTransaction( uuid.v4(), '' , 'Abdelkader a payé ${this.widget.name}',  dateFormat.format(DateTime.now()),  _currentMoney ??
+                                                      this.widget.money,- double.parse(somme), Workerr(), false);
+
+                                                }
+                                                if(_currentMoney >
+                                                    this.widget.money){
+                                                  await DatabaseService(uid: this.widget.uid).updateUserTransaction( uuid.v4(), '' , 'Abdelkader a payé ${this.widget.name}',  dateFormat.format(DateTime.now()),  _currentMoney ??
+                                                      this.widget.money,double.parse(somme), Workerr(), false);
+
+                                                }
+
+                                                
+                                                
                                                 Navigator.pop(context);
                                               }
                                             }

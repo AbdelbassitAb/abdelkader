@@ -33,6 +33,16 @@ dependencies:
   cloud_firestore: ^0.14.0+2
   flutter_spinkit: ^4.1.2+1
   provider: ^4.3.2+2
+  firebase_storage: ^5.2.0
+  image_picker: ^0.6.7+4
+  firebase_image: ^0.3.0
+  equatable: ^1.2.5
+  rxdart: ^0.23.0
+  uuid: ^2.2.2
+  get: ^3.24.0
+
+
+
 
 dev_dependencies:
   flutter_test:

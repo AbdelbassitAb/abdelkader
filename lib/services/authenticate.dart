@@ -16,17 +16,18 @@ class AuthService {
 
   // register with email and password
   Future registerWithEmailAndPassword(String email, String password,
-      String name, String numTlf, double money) async {
+      String name, String numTlf, double money,String pic) async {
     try {
       var result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       User user = result.user;
       // create a new document for the user with a uniq uid
       await DatabaseService(uid: user.uid)
-          .updateUserData(user.uid, name, email, numTlf, money,false);
+          .updateUserData(user.uid, name, email, numTlf, money,false,pic: pic);
       return _userFromFirebaseUser(user);
     } catch (error) {
-      print(error.toString());
+      print('error');
+      //print(error.toString());
       return null;
     }
   }

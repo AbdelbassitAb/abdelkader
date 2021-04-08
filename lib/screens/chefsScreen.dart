@@ -38,13 +38,13 @@ class _ChefsScreenState extends State<ChefsScreen> {
             bottomNavigationBar: BottomNavigationBar(
               items: [
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.home),title: Text('Home'),
+                  icon: Icon(Icons.home),title: Text('Page principale'),
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.people),title: Text('Users'),
+                  icon: Icon(Icons.people),title: Text('Chefs chantier'),
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.list),title: Text('Workers'),
+                  icon: Icon(Icons.list),title: Text('Travailleurs'),
                 )
               ],
               currentIndex: _selectedindex,
